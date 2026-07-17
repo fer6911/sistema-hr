@@ -107,7 +107,7 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").value(false))
                 .andExpect(jsonPath("$.data.username").value("john123"))
-                .andExpect(header().string("Authorization", "jwt-token"));
+                .andExpect(header().string("Authorization", "Bearer jwt-token"));
     }
 
     @Test

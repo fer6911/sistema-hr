@@ -35,7 +35,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UsuarioLoginDto>> login(@Valid @RequestBody LoginDto dto) {
         TokenResponseDto tokenResponse = loginUseCase.login(dto);
         return ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION, tokenResponse.token())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenResponse.token())
                 .body(ApiResponse.success("Login exitoso",
                         new UsuarioLoginDto(tokenResponse.username(), tokenResponse.rol())));
     }
