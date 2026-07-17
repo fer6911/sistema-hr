@@ -1,6 +1,7 @@
 package com.atlashr.atlas_hr.infrastructure.config;
 
 import com.atlashr.atlas_hr.domain.exception.BeneficioNotValidException;
+import com.atlashr.atlas_hr.domain.exception.CredencialesInvalidasException;
 import com.atlashr.atlas_hr.domain.exception.EmpleadoNotValidException;
 import com.atlashr.atlas_hr.domain.exception.UsuarioNotValidException;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,13 @@ public class GlobalControllerAdvice {
     @ExceptionHandler(UsuarioNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleUsuarioNotValid(UsuarioNotValidException ex) {
         return ResponseEntity.badRequest()
-                .body(ApiResponse.error("Error de validación", ex.getErrores()));
+                .body(ApiResponse.error("Error de validación", ex.getErrors()));
+    }
+
+    @ExceptionHandler(CredencialesInvalidasException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCredencialesInvalidas(CredencialesInvalidasException ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error(ex.getMessage(), ex.getErrors()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -38,12 +45,6 @@ public class GlobalControllerAdvice {
                 .toList();
         return ResponseEntity.badRequest()
                 .body(ApiResponse.error("Error de validación", errors));
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiResponse<Void>> handleRuntimeException(RuntimeException ex) {
-        return ResponseEntity.badRequest()
-                .body(ApiResponse.error(ex.getMessage(), List.of()));
     }
 
     @ExceptionHandler(Exception.class)
