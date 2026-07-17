@@ -2,6 +2,7 @@ package com.atlashr.atlas_hr.infrastructure.output.persistence;
 
 import com.atlashr.atlas_hr.application.ports.out.BeneficioRepositoryPort;
 import com.atlashr.atlas_hr.domain.model.Beneficio;
+import com.atlashr.atlas_hr.infrastructure.mapper.BeneficioPersistenceMapper;
 import com.atlashr.atlas_hr.infrastructure.output.persistence.entity.BeneficioEntity;
 import com.atlashr.atlas_hr.infrastructure.output.persistence.repository.BeneficioRepository;
 import org.springframework.stereotype.Component;
@@ -13,35 +14,23 @@ import java.util.Optional;
 public class BeneficioPersistenceAdapter implements BeneficioRepositoryPort {
 
     private final BeneficioRepository repository;
+    private final BeneficioPersistenceMapper mapper;
 
-    public BeneficioPersistenceAdapter(BeneficioRepository repository) {
+    public BeneficioPersistenceAdapter(BeneficioRepository repository, BeneficioPersistenceMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
     @Override
     public Optional<Beneficio> findById(Long id) {
-        return repository.findById(id).map(e -> Beneficio.builder()
-                .id(e.getId())
-                .empleadoId(e.getEmpleadoId())
-                .nombreBeneficio(e.getNombreBeneficio())
-                .monto(e.getMonto())
-                .build());
+        return repository.findById(id).map(mapper::toDomain);
     }
 
     @Override
     public Beneficio save(Beneficio beneficio) {
-        BeneficioEntity entity = new BeneficioEntity(
-                beneficio.getEmpleadoId(),
-                beneficio.getNombreBeneficio(),
-                beneficio.getMonto()
-        );
+        BeneficioEntity entity = mapper.toEntity(beneficio);
         BeneficioEntity guardado = repository.save(entity);
-        return Beneficio.builder()
-                .id(guardado.getId())
-                .empleadoId(guardado.getEmpleadoId())
-                .nombreBeneficio(guardado.getNombreBeneficio())
-                .monto(guardado.getMonto())
-                .build();
+        return mapper.toDomain(guardado);
     }
 
     @Override
@@ -52,13 +41,7 @@ public class BeneficioPersistenceAdapter implements BeneficioRepositoryPort {
     @Override
     public List<Beneficio> findByEmpleadoId(Long empleadoId) {
         return repository.findByEmpleadoId(empleadoId).stream()
-                .map(e -> Beneficio.builder()
-                        .id(e.getId())
-                        .empleadoId(e.getEmpleadoId())
-                        .nombreBeneficio(e.getNombreBeneficio())
-                        .monto(e.getMonto())
-                        .build()
-                )
+                .map(mapper::toDomain)
                 .toList();
     }
 }

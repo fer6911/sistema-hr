@@ -1,6 +1,7 @@
 package com.atlashr.atlas_hr.application.service;
 
 import com.atlashr.atlas_hr.application.dto.BeneficioDto;
+import com.atlashr.atlas_hr.application.mapper.BeneficioApplicationMapper;
 import com.atlashr.atlas_hr.application.ports.in.ListarBeneficiosUseCase;
 import com.atlashr.atlas_hr.application.ports.out.BeneficioRepositoryPort;
 import com.atlashr.atlas_hr.application.ports.out.EmpleadoRepositoryPort;
@@ -15,10 +16,12 @@ public class ListarBeneficiosService implements ListarBeneficiosUseCase {
 
     private final BeneficioRepositoryPort beneficioRepositoryPort;
     private final EmpleadoRepositoryPort empleadoRepositoryPort;
+    private final BeneficioApplicationMapper mapper;
 
-    public ListarBeneficiosService(BeneficioRepositoryPort beneficioRepositoryPort, EmpleadoRepositoryPort empleadoRepositoryPort) {
+    public ListarBeneficiosService(BeneficioRepositoryPort beneficioRepositoryPort, EmpleadoRepositoryPort empleadoRepositoryPort, BeneficioApplicationMapper mapper) {
         this.beneficioRepositoryPort = beneficioRepositoryPort;
         this.empleadoRepositoryPort = empleadoRepositoryPort;
+        this.mapper = mapper;
     }
 
     @Override
@@ -28,12 +31,7 @@ public class ListarBeneficiosService implements ListarBeneficiosUseCase {
         }
 
         return beneficioRepositoryPort.findByEmpleadoId(empleadoId).stream()
-                .map(b -> new BeneficioDto(
-                        b.getId(),
-                        b.getEmpleadoId(),
-                        b.getNombreBeneficio(),
-                        b.getMonto()
-                ))
+                .map(mapper::toDto)
                 .toList();
     }
 }
