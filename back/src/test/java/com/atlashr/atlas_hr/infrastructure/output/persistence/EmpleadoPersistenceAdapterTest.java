@@ -1,6 +1,7 @@
 package com.atlashr.atlas_hr.infrastructure.output.persistence;
 
 import com.atlashr.atlas_hr.domain.model.Empleado;
+import com.atlashr.atlas_hr.infrastructure.mapper.EmpleadoPersistenceMapper;
 import com.atlashr.atlas_hr.infrastructure.output.persistence.repository.EmpleadoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,13 @@ class EmpleadoPersistenceAdapterTest {
     @Autowired
     private EmpleadoRepository empleadoRepository;
 
+    @Autowired
+    private EmpleadoPersistenceMapper empleadoPersistenceMapper;
+
     private EmpleadoPersistenceAdapter adapter;
 
     private void initAdapter() {
-        adapter = new EmpleadoPersistenceAdapter(empleadoRepository);
+        adapter = new EmpleadoPersistenceAdapter(empleadoRepository, empleadoPersistenceMapper);
     }
 
     private Empleado crearEmpleado(String email) {

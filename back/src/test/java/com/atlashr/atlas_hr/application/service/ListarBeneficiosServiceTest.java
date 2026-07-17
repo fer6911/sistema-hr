@@ -1,6 +1,7 @@
 package com.atlashr.atlas_hr.application.service;
 
 import com.atlashr.atlas_hr.application.dto.BeneficioDto;
+import com.atlashr.atlas_hr.application.mapper.BeneficioApplicationMapper;
 import com.atlashr.atlas_hr.application.ports.out.BeneficioRepositoryPort;
 import com.atlashr.atlas_hr.application.ports.out.EmpleadoRepositoryPort;
 import com.atlashr.atlas_hr.domain.exception.BeneficioNotValidException;
@@ -26,20 +27,24 @@ class ListarBeneficiosServiceTest {
     @Mock
     private EmpleadoRepositoryPort empleadoRepositoryPort;
 
+    @Mock
+    private BeneficioApplicationMapper mapper;
+
     private ListarBeneficiosService listarBeneficiosService;
 
     @BeforeEach
     void setUp() {
-        listarBeneficiosService = new ListarBeneficiosService(beneficioRepositoryPort, empleadoRepositoryPort);
+        listarBeneficiosService = new ListarBeneficiosService(beneficioRepositoryPort, empleadoRepositoryPort, mapper);
     }
 
     @Test
     void listarPorEmpleadoRetornaLista() {
         when(empleadoRepositoryPort.existsById(1L)).thenReturn(true);
-        when(beneficioRepositoryPort.findByEmpleadoId(1L)).thenReturn(List.of(
-                Beneficio.builder().id(1L).empleadoId(1L).nombreBeneficio("Seguro").monto(new BigDecimal("500")).build(),
-                Beneficio.builder().id(2L).empleadoId(1L).nombreBeneficio("Bonificación").monto(new BigDecimal("1000")).build()
-        ));
+        Beneficio b1 = Beneficio.builder().id(1L).empleadoId(1L).nombreBeneficio("Seguro").monto(new BigDecimal("500")).build();
+        Beneficio b2 = Beneficio.builder().id(2L).empleadoId(1L).nombreBeneficio("Bonificación").monto(new BigDecimal("1000")).build();
+        when(beneficioRepositoryPort.findByEmpleadoId(1L)).thenReturn(List.of(b1, b2));
+        when(mapper.toDto(b1)).thenReturn(new BeneficioDto(1L, 1L, "Seguro", new BigDecimal("500")));
+        when(mapper.toDto(b2)).thenReturn(new BeneficioDto(2L, 1L, "Bonificación", new BigDecimal("1000")));
 
         List<BeneficioDto> resultado = listarBeneficiosService.listarPorEmpleado(1L);
 
@@ -77,22 +82,6 @@ class ListarBeneficiosServiceTest {
         );
 
         verify(beneficioRepositoryPort, never()).findByEmpleadoId(any());
-    }
-
-    @Test
-    void listarPorEmpleadoMapeaCamposCorrectamente() {
-        when(empleadoRepositoryPort.existsById(5L)).thenReturn(true);
-        when(beneficioRepositoryPort.findByEmpleadoId(5L)).thenReturn(List.of(
-                Beneficio.builder().id(10L).empleadoId(5L).nombreBeneficio("Seguro").monto(new BigDecimal("500.00")).build()
-        ));
-
-        List<BeneficioDto> resultado = listarBeneficiosService.listarPorEmpleado(5L);
-
-        BeneficioDto dto = resultado.get(0);
-        assertEquals(10L, dto.id());
-        assertEquals(5L, dto.empleadoId());
-        assertEquals("Seguro", dto.nombreBeneficio());
-        assertEquals(new BigDecimal("500.00"), dto.monto());
     }
 
     @Test

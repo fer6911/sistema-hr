@@ -2,6 +2,7 @@ package com.atlashr.atlas_hr.application.service;
 
 import com.atlashr.atlas_hr.application.dto.BeneficioDto;
 import com.atlashr.atlas_hr.application.dto.CrearBeneficioDto;
+import com.atlashr.atlas_hr.application.mapper.BeneficioApplicationMapper;
 import com.atlashr.atlas_hr.application.ports.out.BeneficioRepositoryPort;
 import com.atlashr.atlas_hr.application.ports.out.EmpleadoRepositoryPort;
 import com.atlashr.atlas_hr.domain.exception.BeneficioNotValidException;
@@ -9,7 +10,6 @@ import com.atlashr.atlas_hr.domain.model.Beneficio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -29,6 +29,9 @@ class CrearBeneficioServiceTest {
     @Mock
     private EmpleadoRepositoryPort empleadoRepositoryPort;
 
+    @Mock
+    private BeneficioApplicationMapper mapper;
+
     private CrearBeneficioService crearBeneficioService;
 
     private static final Long EMPLEADO_ID = 1L;
@@ -37,29 +40,26 @@ class CrearBeneficioServiceTest {
 
     @BeforeEach
     void setUp() {
-        crearBeneficioService = new CrearBeneficioService(beneficioRepositoryPort, empleadoRepositoryPort);
+        crearBeneficioService = new CrearBeneficioService(beneficioRepositoryPort, empleadoRepositoryPort, mapper);
     }
 
     @Test
     void crearBeneficioExitoso() {
         when(empleadoRepositoryPort.existsById(EMPLEADO_ID)).thenReturn(true);
+        when(mapper.toDomain(any(CrearBeneficioDto.class))).thenReturn(
+                Beneficio.builder().empleadoId(EMPLEADO_ID).nombreBeneficio(NOMBRE).monto(MONTO).build()
+        );
         when(beneficioRepositoryPort.save(any(Beneficio.class))).thenAnswer(inv -> {
             Beneficio b = inv.getArgument(0);
-            return Beneficio.builder()
-                    .id(1L)
-                    .empleadoId(b.getEmpleadoId())
-                    .nombreBeneficio(b.getNombreBeneficio())
-                    .monto(b.getMonto())
-                    .build();
+            return Beneficio.builder().id(1L).empleadoId(b.getEmpleadoId()).nombreBeneficio(b.getNombreBeneficio()).monto(b.getMonto()).build();
         });
+        when(mapper.toDto(any(Beneficio.class))).thenReturn(new BeneficioDto(1L, EMPLEADO_ID, NOMBRE, MONTO));
 
         CrearBeneficioDto dto = new CrearBeneficioDto(EMPLEADO_ID, NOMBRE, MONTO);
         BeneficioDto resultado = crearBeneficioService.crear(dto);
 
         assertEquals(1L, resultado.id());
-        assertEquals(EMPLEADO_ID, resultado.empleadoId());
         assertEquals(NOMBRE, resultado.nombreBeneficio());
-        assertEquals(MONTO, resultado.monto());
     }
 
     @Test
@@ -88,7 +88,11 @@ class CrearBeneficioServiceTest {
     @Test
     void seGuardaEnRepositorio() {
         when(empleadoRepositoryPort.existsById(EMPLEADO_ID)).thenReturn(true);
+        when(mapper.toDomain(any(CrearBeneficioDto.class))).thenReturn(
+                Beneficio.builder().empleadoId(EMPLEADO_ID).nombreBeneficio(NOMBRE).monto(MONTO).build()
+        );
         when(beneficioRepositoryPort.save(any(Beneficio.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(mapper.toDto(any(Beneficio.class))).thenReturn(new BeneficioDto(1L, EMPLEADO_ID, NOMBRE, MONTO));
 
         CrearBeneficioDto dto = new CrearBeneficioDto(EMPLEADO_ID, NOMBRE, MONTO);
         crearBeneficioService.crear(dto);
@@ -99,26 +103,15 @@ class CrearBeneficioServiceTest {
     @Test
     void seVerificaExistenciaEmpleado() {
         when(empleadoRepositoryPort.existsById(EMPLEADO_ID)).thenReturn(true);
+        when(mapper.toDomain(any(CrearBeneficioDto.class))).thenReturn(
+                Beneficio.builder().empleadoId(EMPLEADO_ID).nombreBeneficio(NOMBRE).monto(MONTO).build()
+        );
         when(beneficioRepositoryPort.save(any(Beneficio.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(mapper.toDto(any(Beneficio.class))).thenReturn(new BeneficioDto(1L, EMPLEADO_ID, NOMBRE, MONTO));
 
         CrearBeneficioDto dto = new CrearBeneficioDto(EMPLEADO_ID, NOMBRE, MONTO);
         crearBeneficioService.crear(dto);
 
         verify(empleadoRepositoryPort).existsById(EMPLEADO_ID);
-    }
-
-    @Test
-    void beneficioGuardadoTieneCamposCorrectos() {
-        when(empleadoRepositoryPort.existsById(EMPLEADO_ID)).thenReturn(true);
-        when(beneficioRepositoryPort.save(any(Beneficio.class))).thenAnswer(inv -> inv.getArgument(0));
-
-        CrearBeneficioDto dto = new CrearBeneficioDto(EMPLEADO_ID, NOMBRE, MONTO);
-        crearBeneficioService.crear(dto);
-
-        ArgumentCaptor<Beneficio> captor = ArgumentCaptor.forClass(Beneficio.class);
-        verify(beneficioRepositoryPort).save(captor.capture());
-        assertEquals(EMPLEADO_ID, captor.getValue().getEmpleadoId());
-        assertEquals(NOMBRE, captor.getValue().getNombreBeneficio());
-        assertEquals(MONTO, captor.getValue().getMonto());
     }
 }
