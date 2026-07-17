@@ -1,6 +1,7 @@
 package com.atlashr.atlas_hr.infrastructure.output.persistence;
 
 import com.atlashr.atlas_hr.domain.model.Usuario;
+import com.atlashr.atlas_hr.infrastructure.mapper.UsuarioPersistenceMapper;
 import com.atlashr.atlas_hr.infrastructure.output.persistence.entity.UsuarioEntity;
 import com.atlashr.atlas_hr.infrastructure.output.persistence.repository.UsuarioRepository;
 import org.junit.jupiter.api.Test;
@@ -21,10 +22,13 @@ class UsuarioPersistenceAdapterTest {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private UsuarioPersistenceMapper usuarioPersistenceMapper;
+
     private UsuarioPersistenceAdapter adapter;
 
     private void initAdapter() {
-        adapter = new UsuarioPersistenceAdapter(usuarioRepository);
+        adapter = new UsuarioPersistenceAdapter(usuarioRepository, usuarioPersistenceMapper);
     }
 
     private Usuario crearUsuario(String username, String email, String password) {
