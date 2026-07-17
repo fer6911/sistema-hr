@@ -24,7 +24,7 @@ public class Usuario {
         this.email = builder.email;
         this.password = builder.password;
         this.rol = builder.rol == null ? "USER" : builder.rol;
-        this.activo = true;
+        this.activo = builder.activo == null ? true : builder.activo;
     }
 
     private void validarUsername(String username, List<String> errores) {
@@ -55,11 +55,13 @@ public class Usuario {
         private String email;
         private String password;
         private String rol;
+        private Boolean activo;
 
         public Builder username(String username) { this.username = username; return this; }
         public Builder email(String email) { this.email = email; return this; }
         public Builder password(String password) { this.password = password; return this; }
         public Builder rol(String rol) { this.rol = rol; return this; }
+        public Builder activo(Boolean activo) { this.activo = activo; return this; }
 
         public Usuario build() { return new Usuario(this); }
     }

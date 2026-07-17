@@ -28,6 +28,10 @@ public class LoginService implements LoginUseCase {
         Usuario usuario = usuarioRepositoryPort.findByUsername(dto.username())
                 .orElseThrow(() -> new CredencialesInvalidasException());
 
+        if (!usuario.isActivo()) {
+            throw new CredencialesInvalidasException("Usuario inactivo");
+        }
+
         if (!passwordEncoder.matches(dto.password(), usuario.getPassword())) {
             throw new CredencialesInvalidasException();
         }

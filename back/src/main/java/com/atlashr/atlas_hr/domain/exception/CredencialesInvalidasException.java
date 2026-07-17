@@ -8,6 +8,10 @@ public class CredencialesInvalidasException extends RuntimeException {
         super("Credenciales inválidas");
     }
 
+    public CredencialesInvalidasException(String message) {
+        super(message);
+    }
+
     public List<String> getErrors() {
         return List.of(getMessage());
     }
