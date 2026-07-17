@@ -20,6 +20,7 @@ El sistema consta de dos partes principales:
 | Framework       | Spring Boot 4.1 / Java 21 |
 | Build Tool      | Gradle                  |
 | Arquitectura    | Hexagonal (Ports & Adapters) |
+| Autenticación   | JWT (jjwt) + Spring Security |
 | API Externa     | Nominatim (OpenStreetMap) — XML |
 | Pruebas         | JUnit 5                 |
 
@@ -48,6 +49,7 @@ El sistema consta de dos partes principales:
 
 - **Java 21** (JDK)
 - **Gradle** (se incluye el wrapper `gradlew` en el proyecto)
+- **PostgreSQL** (base de datos)
 
 ### Frontend
 
@@ -65,10 +67,20 @@ atlashr/
 │   ├── gradlew / gradlew.bat      # Wrapper de Gradle
 │   └── src/
 │       ├── main/java/com/atlashr/atlas_hr/
-│       │   ├── AtlasHrApplication.java          # Punto de entrada
-│       │   ├── domain/                          # Dominio (modelos, puertos, reglas)
-│       │   ├── application/                     # Casos de uso
-│       │   └── infrastructure/                  # Adaptadores (REST, Nominatim, persistencia)
+│       │   ├── AtlasHrApplication.java
+│       │   ├── domain/
+│       │   │   ├── model/         # Entidades de dominio
+│       │   │   └── exception/     # Excepciones de dominio
+│       │   ├── application/
+│       │   │   ├── dto/           # Data Transfer Objects
+│       │   │   ├── ports/in/      # Puertos de entrada (use cases)
+│       │   │   ├── ports/out/     # Puertos de salida (persistencia, JWT, etc.)
+│       │   │   └── service/       # Casos de uso
+│       │   └── infrastructure/
+│       │       ├── config/        # ApiResponse, GlobalResponseWrapper, etc.
+│       │       ├── input/rest/    # Controllers REST
+│       │       ├── output/        # Adapters (persistencia, API externa)
+│       │       └── security/      # JWT, Security, Filtros
 │       ├── main/resources/
 │       │   └── application.properties
 │       └── test/java/com/atlashr/atlas_hr/
@@ -113,6 +125,9 @@ cd atlashr
 
 ```bash
 cd back
+
+# Crear la base de datos (requiere PostgreSQL corriendo)
+psql -U postgres -c "CREATE DATABASE atlashr;"
 
 # Ejecutar en modo desarrollo
 ./gradlew bootRun
@@ -159,6 +174,13 @@ VITE_API_URL=http://localhost:8080
 
 ### Backend
 
+| Variable        | Descripción                       | Default                 |
+| --------------- | --------------------------------- | ----------------------- |
+| `DB_URL`        | URL de conexión a PostgreSQL      | `jdbc:postgresql://localhost:5432/atlashr` |
+| `DB_USER`       | Usuario de la BD                  | `postgres`              |
+| `DB_PASS`       | Contraseña de la BD               | `admin`                 |
+| `JWT_SECRET_KEY`| Secreto para firmar tokens JWT (Base64) | Valor por defecto para desarrollo |
+
 El archivo `application.properties` se encuentra en `back/src/main/resources/`. Por defecto el backend corre en el puerto `8080`.
 
 ---
@@ -167,14 +189,28 @@ El archivo `application.properties` se encuentra en `back/src/main/resources/`. 
 
 El backend expone los siguientes endpoints REST:
 
-| Método   | Endpoint                       | Descripción                                    |
-| -------- | ------------------------------ | ---------------------------------------------- |
-| `GET`    | `/api/empleados`               | Listar todos los empleados                     |
-| `POST`   | `/api/empleados`               | Crear un nuevo empleado                        |
-| `GET`    | `/api/empleados/{id}`          | Obtener detalle de un empleado                 |
-| `GET`    | `/api/beneficios/{empleadoId}` | Listar beneficios de un empleado               |
-| `POST`   | `/api/beneficios`              | Asociar un beneficio a un empleado             |
-| `DELETE` | `/api/beneficios/{id}`         | Eliminar un beneficio                          |
+### Autenticación (públicos)
+
+| Método | Endpoint              | Descripción                                     |
+| ------ | --------------------- | ----------------------------------------------- |
+| `POST` | `/api/auth/register`  | Registrar nuevo usuario                         |
+| `POST` | `/api/auth/login`     | Login — retorna JWT en header `Authorization`   |
+
+### Empleados (requieren JWT)
+
+| Método   | Endpoint                      | Descripción                          |
+| -------- | ----------------------------- | ------------------------------------ |
+| `GET`    | `/api/empleados`              | Listar todos los empleados           |
+| `POST`   | `/api/empleados`              | Crear un nuevo empleado              |
+| `GET`    | `/api/empleados/{id}`         | Obtener detalle de un empleado       |
+
+### Beneficios (requieren JWT)
+
+| Método   | Endpoint                       | Descripción                          |
+| -------- | ------------------------------ | ------------------------------------ |
+| `GET`    | `/api/beneficios/{empleadoId}` | Listar beneficios de un empleado     |
+| `POST`   | `/api/beneficios`              | Asociar un beneficio a un empleado   |
+| `DELETE` | `/api/beneficios/{id}`         | Eliminar un beneficio                |
 
 ### Integración con Nominatim
 
