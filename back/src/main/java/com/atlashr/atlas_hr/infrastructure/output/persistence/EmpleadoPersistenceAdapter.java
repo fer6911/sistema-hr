@@ -23,6 +23,11 @@ public class EmpleadoPersistenceAdapter implements EmpleadoRepositoryPort {
     }
 
     @Override
+    public boolean existsById(Long id) {
+        return repository.existsById(id);
+    }
+
+    @Override
     public Empleado save(Empleado empleado) {
         EmpleadoEntity entity = new EmpleadoEntity(
                 empleado.getNombre(), empleado.getApellido(), empleado.getEmail(),
