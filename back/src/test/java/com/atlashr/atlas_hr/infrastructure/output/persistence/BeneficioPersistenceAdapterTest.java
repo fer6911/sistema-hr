@@ -1,6 +1,7 @@
 package com.atlashr.atlas_hr.infrastructure.output.persistence;
 
 import com.atlashr.atlas_hr.domain.model.Beneficio;
+import com.atlashr.atlas_hr.infrastructure.mapper.BeneficioPersistenceMapper;
 import com.atlashr.atlas_hr.infrastructure.output.persistence.repository.BeneficioRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,13 @@ class BeneficioPersistenceAdapterTest {
     @Autowired
     private BeneficioRepository beneficioRepository;
 
+    @Autowired
+    private BeneficioPersistenceMapper beneficioPersistenceMapper;
+
     private BeneficioPersistenceAdapter adapter;
 
     private void initAdapter() {
-        adapter = new BeneficioPersistenceAdapter(beneficioRepository);
+        adapter = new BeneficioPersistenceAdapter(beneficioRepository, beneficioPersistenceMapper);
     }
 
     private Beneficio crearBeneficio(Long empleadoId) {
