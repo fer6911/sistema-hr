@@ -67,6 +67,21 @@ class EmpleadoPersistenceAdapterTest {
     }
 
     @Test
+    void existsByIdTrue() {
+        initAdapter();
+        Empleado guardado = adapter.save(crearEmpleado("juan@example.com"));
+
+        assertTrue(adapter.existsById(guardado.getId()));
+    }
+
+    @Test
+    void existsByIdFalse() {
+        initAdapter();
+
+        assertFalse(adapter.existsById(999L));
+    }
+
+    @Test
     void findAllRetornaTodos() {
         initAdapter();
         adapter.save(crearEmpleado("juan@example.com"));
