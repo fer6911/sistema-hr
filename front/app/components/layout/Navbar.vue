@@ -136,7 +136,7 @@ const initials = computed(() => {
 })
 
 const links = [
-  { label: 'Dashboard', to: '/' },
+  { label: 'Inicio', to: '/' },
   { label: 'Empleados', to: '/empleados' },
 ]
 
