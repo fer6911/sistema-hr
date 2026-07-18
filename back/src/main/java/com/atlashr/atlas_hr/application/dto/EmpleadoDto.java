@@ -11,5 +11,6 @@ public record EmpleadoDto(
     String cargo,
     BigDecimal salario,
     LocalDate fechaIngreso,
+    String ciudad,
     boolean activo
 ) {}
