@@ -169,7 +169,7 @@ watch(
         </div>
 
         <!-- Benefits -->
-        <div class="card p-6 sm:p-7">
+      <div class="card p-6 sm:p-7">
           <div class="flex items-center justify-between mb-5">
             <div>
               <h3 class="text-base font-heading font-bold text-white">Beneficios</h3>
@@ -179,6 +179,13 @@ watch(
 
           <div v-if="store.loadingBenefits" class="text-sm text-gray py-3">
             Cargando beneficios…
+          </div>
+          <div
+            v-else-if="store.benefitsServiceError"
+            class="text-sm text-warning py-3 flex items-center gap-2 px-4 rounded-xl bg-warning/10 border border-warning/20 mb-5"
+          >
+            <Icon name="ph:warning-circle-bold" class="w-4 h-4 shrink-0" />
+            No se pudo conectar con el servicio de beneficios. Verifica que el microservicio esté encendido.
           </div>
           <div v-else class="space-y-2.5 mb-5">
             <div

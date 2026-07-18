@@ -2,16 +2,18 @@ import { apiBar } from '~/api/core/axios'
 import { isAxiosError } from 'axios'
 import type { ApiResponse, BeneficiosResponse, BeneficioDto, CrearBeneficioDto } from '../interfaces'
 
-export const listarBeneficiosPorEmpleado = async (empleadoId: number): Promise<BeneficiosResponse> => {
+export const listarBeneficiosPorEmpleado = async (
+  empleadoId: number
+): Promise<BeneficiosResponse & { serviceError?: boolean }> => {
   try {
     const response = await apiBar.get<ApiResponse<BeneficiosResponse>>(`/api/beneficios/empleado/${empleadoId}`)
-    if (response.data.error) return { beneficios: [], ubicacion: null }
+    if (response.data.error) return { beneficios: [], ubicacion: null, serviceError: true }
     return response.data.data ?? { beneficios: [], ubicacion: null }
   } catch (error) {
     if (isAxiosError(error)) {
       console.error('Error al listar beneficios:', error.response?.data?.message ?? error.message)
     }
-    return { beneficios: [], ubicacion: null }
+    return { beneficios: [], ubicacion: null, serviceError: true }
   }
 }
 

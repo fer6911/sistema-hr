@@ -19,6 +19,7 @@ export const useEmployeesStore = defineStore('employees', () => {
   const currentBenefits = ref<BeneficioDto[]>([])
   const currentUbicacion = ref<{ lat: string; lon: string; display_name: string } | null>(null)
   const loadingBenefits = ref(false)
+  const benefitsServiceError = ref(false)
 
   const fetchEmployees = async () => {
     loading.value = true
@@ -79,9 +80,10 @@ export const useEmployeesStore = defineStore('employees', () => {
 
   const fetchBenefits = async (empleadoId: number) => {
     loadingBenefits.value = true
-    const data: BeneficiosResponse = await listarBeneficiosPorEmpleado(empleadoId)
+    const data = await listarBeneficiosPorEmpleado(empleadoId)
     currentBenefits.value = data.beneficios
     currentUbicacion.value = data.ubicacion
+    benefitsServiceError.value = data.serviceError ?? false
     loadingBenefits.value = false
   }
 
@@ -108,6 +110,7 @@ export const useEmployeesStore = defineStore('employees', () => {
     currentBenefits,
     currentUbicacion,
     loadingBenefits,
+    benefitsServiceError,
     fetchEmployees,
     fetchEmployee,
     addEmployee,
