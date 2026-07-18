@@ -4,9 +4,10 @@ Plataforma fullstack desarrollada como parte de la prueba técnica para **Sympli
 
 ## Descripción del Proyecto
 
-El sistema consta de dos partes principales:
+El sistema consta de tres partes principales:
 
-- **Backend (Spring Boot)** — API REST construida bajo arquitectura **Hexagonal (Ports & Adapters)**. Gestiona el CRUD de empleados y beneficios. Consume la API de Nominatim en formato XML para obtener coordenadas geográficas (latitud/longitud) basadas en la ciudad del empleado.
+- **Backend (Spring Boot)** — API REST construida bajo arquitectura **Hexagonal (Ports & Adapters)**. Gestiona el CRUD de empleados. Actúa como proxy hacia el microservicio de beneficios.
+- **Microservicio de Beneficios (Ruby on Rails)** — Servicio independiente que gestiona el CRUD de beneficios y la integración con Nominatim. Opera con su propia base de datos PostgreSQL.
 - **Frontend (Nuxt 4 / Vue 3)** — Dashboard moderno que visualiza la lista de empleados, permite crear registros, y al ver el detalle muestra los beneficios asociados junto con la información geográfica obtenida del backend.
 
 ---
@@ -23,6 +24,17 @@ El sistema consta de dos partes principales:
 | Autenticación   | JWT (jjwt) + Spring Security |
 | API Externa     | Nominatim (OpenStreetMap) — XML |
 | Pruebas         | JUnit 5                 |
+
+### Microservicio de Beneficios
+
+| Capa            | Tecnología              |
+| --------------- | ----------------------- |
+| Framework       | Ruby on Rails 8.1 (API-only) |
+| Base de datos   | PostgreSQL (independiente) |
+| API Externa     | Nominatim (OpenStreetMap) — XML |
+| Parseo XML      | Nokogiri                |
+| Pruebas         | RSpec + FactoryBot + WebMock |
+| Puerto          | 3000                    |
 
 ### Frontend
 
@@ -51,6 +63,13 @@ El sistema consta de dos partes principales:
 - **Gradle** (se incluye el wrapper `gradlew` en el proyecto)
 - **PostgreSQL** (base de datos)
 
+### Microservicio de Beneficios
+
+- **Ruby** >= 3.3.x
+- **Rails** >= 8.1 (se instala con `gem install rails`)
+- **PostgreSQL** (misma instancia, base de datos separada: `beneficios_service_development`)
+- **Bundler** (se instala con `gem install bundler`)
+
 ### Frontend
 
 - **Node.js** >= 18.x
@@ -65,29 +84,40 @@ atlashr/
 ├── back/                          # Backend — Spring Boot (Hexagonal)
 │   ├── build.gradle               # Dependencias y configuración de Gradle
 │   ├── gradlew / gradlew.bat      # Wrapper de Gradle
-│   └── src/
-│       ├── main/java/com/atlashr/atlas_hr/
-│       │   ├── AtlasHrApplication.java
-│       │   ├── domain/
-│       │   │   ├── model/         # Entidades de dominio (Empleado, Beneficio, Ubicacion, Usuario)
-│       │   │   └── exception/     # Excepciones de dominio
-│       │   ├── application/
-│       │   │   ├── dto/           # Data Transfer Objects
-│       │   │   ├── mapper/        # Mappers MapStruct (DTO ↔ Domain)
-│       │   │   ├── ports/in/      # Puertos de entrada (use cases)
-│       │   │   ├── ports/out/     # Puertos de salida (persistencia, Nominatim, JWT)
-│       │   │   └── service/       # Casos de uso
-│       │   └── infrastructure/
-│       │       ├── config/        # ApiResponse, RestTemplate, GlobalResponseWrapper, etc.
-│       │       ├── input/rest/    # Controllers REST
-│       │       ├── mapper/        # Mappers MapStruct (Domain ↔ Entity)
-│       │       ├── output/
-│       │       │   ├── persistence/  # Adapters de persistencia + JPA repositories
-│       │       │   └── nominatim/    # Adapter de Nominatim (XML + cache)
-│       │       └── security/      # JWT, Security, Filtros
-│       ├── main/resources/
-│       │   └── application.properties
-│       └── test/java/com/atlashr/atlas_hr/
+│   ├── src/
+│   │   ├── main/java/com/atlashr/atlas_hr/
+│   │   │   ├── AtlasHrApplication.java
+│   │   │   ├── domain/
+│   │   │   │   ├── model/         # Entidades de dominio (Empleado, Beneficio, Ubicacion, Usuario)
+│   │   │   │   └── exception/     # Excepciones de dominio
+│   │   │   ├── application/
+│   │   │   │   ├── dto/           # Data Transfer Objects
+│   │   │   │   ├── mapper/        # Mappers MapStruct (DTO ↔ Domain)
+│   │   │   │   ├── ports/in/      # Puertos de entrada (use cases)
+│   │   │   │   ├── ports/out/     # Puertos de salida (persistencia, Nominatim, JWT)
+│   │   │   │   └── service/       # Casos de uso
+│   │   │   └── infrastructure/
+│   │   │       ├── config/        # ApiResponse, RestTemplate, GlobalResponseWrapper, etc.
+│   │   │       ├── input/rest/    # Controllers REST
+│   │   │       ├── mapper/        # Mappers MapStruct (Domain ↔ Entity)
+│   │   │       ├── output/
+│   │   │       │   ├── persistence/  # Adapters de persistencia + JPA repositories
+│   │   │       │   ├── nominatim/    # Adapter de Nominatim (XML + cache)
+│   │   │       │   └── microservicio/ # Cliente HTTP hacia el microservicio Ruby
+│   │   │       └── security/      # JWT, Security, Filtros
+│   │   ├── main/resources/
+│   │   │   └── application.properties
+│   │   └── test/java/com/atlashr/atlas_hr/
+│   │
+│   └── beneficios-service/        # Microservicio — Ruby on Rails (API-only)
+│       ├── app/
+│       │   ├── models/            # Modelo Beneficio (ActiveRecord)
+│       │   ├── controllers/api/v1/ # API REST endpoints
+│       │   ├── services/          # Lógica de negocio + NominatimService
+│       │   └── serializers/       # Serializador de respuesta
+│       ├── config/                # Rutas, database.yml, CORS, Nominatim config
+│       ├── db/migrate/            # Migraciones PostgreSQL
+│       └── spec/                  # Tests RSpec (models, services, requests)
 │
 ├── front/                         # Frontend — Nuxt 4 (Vue 3)
 │   ├── app/
@@ -142,7 +172,37 @@ psql -U postgres -c "CREATE DATABASE atlashr;"
 
 El servidor backend queda disponible en `http://localhost:8080`.
 
-### 3. Frontend (Nuxt 4)
+### 3. Microservicio de Beneficios (Ruby on Rails)
+
+```bash
+cd back/beneficios-service
+
+# Instalar dependencias
+bundle install
+
+# Crear base de datos y ejecutar migraciones
+ruby bin\rails db:create db:migrate
+
+# Ejecutar el servidor (puerto 3000)
+ruby bin\rails server
+```
+
+En Windows, si `ruby bin\rails` no funciona, usa `ruby bin\rails server` directamente.
+
+El microservicio queda disponible en `http://localhost:3000`.
+
+> **Nota:** El microservicio tiene su propia base de datos PostgreSQL (`beneficios_service_development`), independiente de la del backend Java.
+
+**Flujo de la integración:**
+- El backend Java actúa como **proxy** hacia el microservicio Ruby.
+- El frontend nunca llama directamente al microservicio.
+- Java busca la ciudad del empleado en su BD y la pasa como query param al microservicio Ruby, que a su vez consulta Nominatim para obtener coordenadas.
+
+```
+Frontend → Java (proxy, puerto 8080) → Ruby (lógica + BD propia, puerto 3000) → Nominatim
+```
+
+### 4. Frontend (Nuxt 4)
 
 ```bash
 cd front
@@ -209,12 +269,27 @@ El backend expone los siguientes endpoints REST:
 
 ### Beneficios (requieren JWT)
 
+El backend Java actúa como proxy. Las peticiones se reenvían al microservicio Ruby.
+
 | Método   | Endpoint                                | Descripción                                    |
 | -------- | --------------------------------------- | ---------------------------------------------- |
 | `GET`    | `/api/beneficios/empleado/{empleadoId}` | Listar beneficios de un empleado + ubicación   |
 | `POST`   | `/api/beneficios`                       | Asociar un beneficio a un empleado             |
 | `PUT`    | `/api/beneficios/{id}`                  | Editar un beneficio existente                  |
 | `DELETE` | `/api/beneficios/{id}`                  | Eliminar un beneficio                          |
+
+### Microservicio de Beneficios (Ruby on Rails)
+
+El microservicio expone su propia API en `http://localhost:3000`. El backend Java se comunica con estos endpoints.
+
+| Método   | Endpoint                                          | Descripción                                    |
+| -------- | ------------------------------------------------- | ---------------------------------------------- |
+| `GET`    | `/api/v1/beneficios/empleado/:id?ciudad=Ciudad`  | Listar beneficios + ubicación de Nominatim     |
+| `POST`   | `/api/v1/beneficios`                              | Crear un beneficio                             |
+| `PUT`    | `/api/v1/beneficios/:id`                          | Editar un beneficio existente                  |
+| `DELETE` | `/api/v1/beneficios/:id`                          | Eliminar un beneficio                          |
+
+> **Nota sobre la ciudad:** El microservicio es independiente y no tiene acceso a la tabla de empleados. La ciudad se recibe como query param (`?ciudad=Bogota`). El backend Java la obtiene de su propia BD y la reenvía.
 
 ### Integración con Nominatim
 
@@ -259,6 +334,24 @@ cd back
 ```
 
 Ejecuta las pruebas unitarias con JUnit 5. La cobertura incluye la lógica de negocio, el parseo del XML de Nominatim y los controladores.
+
+### Microservicio de Beneficios
+
+```bash
+cd back/beneficios-service
+
+# Crear BD de test y ejecutar migraciones
+ruby bin\rails db:create db:migrate RAILS_ENV=test
+
+# Ejecutar todos los tests
+bundle exec rspec
+```
+
+Cobertura de tests:
+- **Modelo:** Validaciones de presencia, numéricas y scopes
+- **Services:** Crear, listar, editar, eliminar beneficios + NominatimService con WebMock
+- **Requests:** Integración de los 4 endpoints con stubs de Nominatim
+- **Total:** 32 tests
 
 ### Frontend
 
