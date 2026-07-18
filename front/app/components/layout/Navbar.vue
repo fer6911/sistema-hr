@@ -36,9 +36,28 @@
       </nav>
 
       <div class="hidden md:flex items-center gap-3">
-        <NuxtLink to="/login" class="btn-primary text-sm font-semibold px-4 py-2 rounded-lg">
-          Iniciar sesión
-        </NuxtLink>
+        <template v-if="auth.isAuthenticated">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
+              <span class="text-xs font-bold text-accent">{{ initials }}</span>
+            </div>
+            <span class="text-sm font-medium text-white">{{ auth.user?.username }}</span>
+          </div>
+          <button
+            class="text-sm text-gray hover:text-error transition-colors px-3 py-2 rounded-lg hover:bg-white/5"
+            @click="auth.logout()"
+          >
+            Salir
+          </button>
+        </template>
+        <template v-else>
+          <button
+            class="btn-primary text-sm font-semibold px-4 py-2 rounded-lg"
+            @click="authModal.openLogin()"
+          >
+            Iniciar sesión
+          </button>
+        </template>
       </div>
 
       <!-- Mobile toggle -->
@@ -72,18 +91,49 @@
           >
             {{ link.label }}
           </NuxtLink>
-          <NuxtLink to="/login" class="btn-primary text-center text-sm font-semibold px-4 py-2.5 rounded-lg mt-1" @click="mobileOpen = false">
-            Iniciar sesión
-          </NuxtLink>
+
+          <template v-if="auth.isAuthenticated">
+            <div class="flex items-center gap-2.5 px-4 py-2.5">
+              <div class="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
+                <span class="text-xs font-bold text-accent">{{ initials }}</span>
+              </div>
+              <span class="text-sm font-medium text-white">{{ auth.user?.username }}</span>
+            </div>
+            <button
+              class="text-center text-sm font-medium px-4 py-2.5 rounded-lg text-error mt-1"
+              @click="auth.logout(); mobileOpen = false"
+            >
+              Cerrar sesión
+            </button>
+          </template>
+          <template v-else>
+            <button
+              class="btn-primary text-center text-sm font-semibold px-4 py-2.5 rounded-lg mt-1"
+              @click="authModal.openLogin(); mobileOpen = false"
+            >
+              Iniciar sesión
+            </button>
+          </template>
         </div>
       </div>
     </Transition>
+
+    <AuthModal :visible="authModal.loginOpen || authModal.registerOpen" @close="authModal.closeAll()" />
   </header>
 </template>
 
 <script setup lang="ts">
 const route = useRoute()
 const mobileOpen = ref(false)
+const auth = useAuthStore()
+const authModal = useAuthModalStore()
+
+const initials = computed(() => {
+  if (!auth.user?.username) return ''
+  return auth.user.username
+    .slice(0, 2)
+    .toUpperCase()
+})
 
 const links = [
   { label: 'Dashboard', to: '/' },
