@@ -52,6 +52,7 @@ export default defineNuxtConfig({
   components: [
     { path: '~/shared/components', pathPrefix: false },
     { path: '~/components', pathPrefix: false },
+    { path: '~/features/dashboard/components', pathPrefix: false },
     { path: '~/features/employees/components', pathPrefix: false },
     { path: '~/features/auth/components', pathPrefix: false },
     { path: '~/shared/icons', pathPrefix: false },
