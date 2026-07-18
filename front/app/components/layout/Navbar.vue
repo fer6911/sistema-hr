@@ -118,7 +118,7 @@
       </div>
     </Transition>
 
-    <AuthModal :visible="authModal.loginOpen || authModal.registerOpen" @close="authModal.closeAll()" />
+    <AuthModal :visible="authModal.loginOpen || authModal.registerOpen" />
   </header>
 </template>
 
