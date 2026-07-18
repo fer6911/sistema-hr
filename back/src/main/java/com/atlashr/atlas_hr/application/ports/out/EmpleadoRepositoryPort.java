@@ -11,4 +11,5 @@ public interface EmpleadoRepositoryPort {
     Optional<Empleado> findById(Long id);
     Empleado save(Empleado empleado);
     List<Empleado> findAll();
+    void deleteById(Long id);
 }

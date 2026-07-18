@@ -42,7 +42,7 @@ defineProps<{ employees: Employee[]; loading: boolean }>()
               class="cursor-pointer"
               @click="navigateTo(`/empleados/${e.id}`)"
             >
-              <td class="font-medium text-white">{{ e.nombre }}</td>
+              <td class="font-medium text-white">{{ e.nombre }} {{ e.apellido }}</td>
               <td class="hidden sm:table-cell">{{ e.cargo }}</td>
               <td class="hidden md:table-cell">{{ e.ciudad }}</td>
               <td>

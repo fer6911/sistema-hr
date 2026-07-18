@@ -49,4 +49,9 @@ public class EmpleadoPersistenceAdapter implements EmpleadoRepositoryPort {
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public void deleteById(Long id) {
+        repository.deleteById(id);
+    }
 }
