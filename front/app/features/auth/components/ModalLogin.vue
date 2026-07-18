@@ -20,9 +20,11 @@
             type="text"
             placeholder="admin"
             required
-            class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-white/5 bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all"
+            class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:ring-2 focus:ring-accent/15 transition-all"
+            :class="fieldErrors.username ? 'border-error' : 'border-white/5 focus:border-accent'"
           />
         </div>
+        <p v-if="fieldErrors.username" class="text-error text-xs mt-1">{{ fieldErrors.username }}</p>
       </div>
 
       <div>
@@ -34,7 +36,8 @@
             :type="showPassword ? 'text' : 'password'"
             placeholder="••••••••"
             required
-            class="w-full pl-10 pr-11 py-2.5 text-sm rounded-xl border border-white/5 bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all"
+            class="w-full pl-10 pr-11 py-2.5 text-sm rounded-xl border bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:ring-2 focus:ring-accent/15 transition-all"
+            :class="fieldErrors.password ? 'border-error' : 'border-white/5 focus:border-accent'"
           />
           <button
             type="button"
@@ -44,11 +47,12 @@
             <Icon :name="showPassword ? 'ph:eye-slash' : 'ph:eye'" class="w-4.5 h-4.5" />
           </button>
         </div>
+        <p v-if="fieldErrors.password" class="text-error text-xs mt-1">{{ fieldErrors.password }}</p>
       </div>
 
-      <div v-if="error" class="flex items-center gap-2 text-sm text-error bg-error/10 border border-error/20 rounded-xl px-4 py-2.5">
+      <div v-if="serverError" class="flex items-center gap-2 text-sm text-error bg-error/10 border border-error/20 rounded-xl px-4 py-2.5">
         <Icon name="ph:warning-circle" class="w-4 h-4 shrink-0" />
-        {{ error }}
+        {{ serverError }}
       </div>
 
       <button
@@ -75,6 +79,8 @@
 </template>
 
 <script setup lang="ts">
+import { LoginSchema, type LoginInput } from '~/shared/validation/auth.schema'
+
 const emit = defineEmits<{
   switchView: [view: 'login' | 'register']
   success: []
@@ -82,21 +88,39 @@ const emit = defineEmits<{
 
 const auth = useAuthStore()
 
-const form = ref({ username: '', password: '' })
+const form = reactive<LoginInput>({ username: '', password: '' })
 const showPassword = ref(false)
 const loading = ref(false)
-const error = ref('')
+const serverError = ref('')
+const fieldErrors = ref<Record<string, string>>({})
+
+const clearErrors = () => {
+  serverError.value = ''
+  fieldErrors.value = {}
+}
 
 const handleSubmit = async () => {
-  loading.value = true
-  error.value = ''
+  clearErrors()
 
-  const success = await auth.login(form.value.username, form.value.password)
+  const result = LoginSchema.safeParse(form)
+  if (!result.success) {
+    for (const issue of result.error.issues) {
+      const field = issue.path[0] as string
+      if (!fieldErrors.value[field]) {
+        fieldErrors.value[field] = issue.message
+      }
+    }
+    return
+  }
+
+  loading.value = true
+
+  const success = await auth.login(result.data.username, result.data.password)
 
   if (success) {
     emit('success')
   } else {
-    error.value = 'Usuario o contraseña incorrectos'
+    serverError.value = 'Usuario o contraseña incorrectos'
   }
 
   loading.value = false

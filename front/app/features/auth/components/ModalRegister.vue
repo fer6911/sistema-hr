@@ -21,9 +21,11 @@
             placeholder="juanperez"
             required
             maxlength="30"
-            class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-white/5 bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all"
+            class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:ring-2 focus:ring-accent/15 transition-all"
+            :class="fieldErrors.username ? 'border-error' : 'border-white/5 focus:border-accent'"
           />
         </div>
+        <p v-if="fieldErrors.username" class="text-error text-xs mt-1">{{ fieldErrors.username }}</p>
       </div>
 
       <div>
@@ -35,9 +37,11 @@
             type="email"
             placeholder="juan@atlashr.co"
             required
-            class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-white/5 bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all"
+            class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:ring-2 focus:ring-accent/15 transition-all"
+            :class="fieldErrors.email ? 'border-error' : 'border-white/5 focus:border-accent'"
           />
         </div>
+        <p v-if="fieldErrors.email" class="text-error text-xs mt-1">{{ fieldErrors.email }}</p>
       </div>
 
       <div>
@@ -50,7 +54,8 @@
             placeholder="Mínimo 6 caracteres"
             required
             minlength="6"
-            class="w-full pl-10 pr-11 py-2.5 text-sm rounded-xl border border-white/5 bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all"
+            class="w-full pl-10 pr-11 py-2.5 text-sm rounded-xl border bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:ring-2 focus:ring-accent/15 transition-all"
+            :class="fieldErrors.password ? 'border-error' : 'border-white/5 focus:border-accent'"
           />
           <button
             type="button"
@@ -60,6 +65,7 @@
             <Icon :name="showPassword ? 'ph:eye-slash' : 'ph:eye'" class="w-4.5 h-4.5" />
           </button>
         </div>
+        <p v-if="fieldErrors.password" class="text-error text-xs mt-1">{{ fieldErrors.password }}</p>
       </div>
 
       <div>
@@ -71,14 +77,16 @@
             :type="showPassword ? 'text' : 'password'"
             placeholder="Repite tu contraseña"
             required
-            class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-white/5 bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all"
+            class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:ring-2 focus:ring-accent/15 transition-all"
+            :class="fieldErrors.confirmPassword ? 'border-error' : 'border-white/5 focus:border-accent'"
           />
         </div>
+        <p v-if="fieldErrors.confirmPassword" class="text-error text-xs mt-1">{{ fieldErrors.confirmPassword }}</p>
       </div>
 
-      <div v-if="error" class="flex items-center gap-2 text-sm text-error bg-error/10 border border-error/20 rounded-xl px-4 py-2.5">
+      <div v-if="serverError" class="flex items-center gap-2 text-sm text-error bg-error/10 border border-error/20 rounded-xl px-4 py-2.5">
         <Icon name="ph:warning-circle" class="w-4 h-4 shrink-0" />
-        {{ error }}
+        {{ serverError }}
       </div>
 
       <button
@@ -105,6 +113,8 @@
 </template>
 
 <script setup lang="ts">
+import { RegisterSchema, type RegisterInput } from '~/shared/validation/auth.schema'
+
 const emit = defineEmits<{
   switchView: [view: 'login' | 'register']
   success: []
@@ -112,27 +122,39 @@ const emit = defineEmits<{
 
 const auth = useAuthStore()
 
-const form = ref({ username: '', email: '', password: '', confirmPassword: '' })
+const form = reactive<RegisterInput>({ username: '', email: '', password: '', confirmPassword: '' })
 const showPassword = ref(false)
 const loading = ref(false)
-const error = ref('')
+const serverError = ref('')
+const fieldErrors = ref<Record<string, string>>({})
+
+const clearErrors = () => {
+  serverError.value = ''
+  fieldErrors.value = {}
+}
 
 const handleSubmit = async () => {
-  loading.value = true
-  error.value = ''
+  clearErrors()
 
-  if (form.value.password !== form.value.confirmPassword) {
-    error.value = 'Las contraseñas no coinciden'
-    loading.value = false
+  const result = RegisterSchema.safeParse(form)
+  if (!result.success) {
+    for (const issue of result.error.issues) {
+      const field = issue.path[0] as string
+      if (!fieldErrors.value[field]) {
+        fieldErrors.value[field] = issue.message
+      }
+    }
     return
   }
 
-  const success = await auth.register(form.value.username, form.value.email, form.value.password)
+  loading.value = true
+
+  const success = await auth.register(result.data.username, result.data.email, result.data.password)
 
   if (success) {
     emit('success')
   } else {
-    error.value = 'No se pudo crear la cuenta'
+    serverError.value = 'No se pudo crear la cuenta'
   }
 
   loading.value = false
