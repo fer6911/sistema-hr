@@ -2,7 +2,6 @@
 const store = useEmployeesStore()
 const authStore = useAuthStore()
 const authModal = useAuthModalStore()
-
 const search = ref('')
 const statusFilter = ref<'todos' | 'activo' | 'inactivo'>('todos')
 const modalOpen = ref(false)
@@ -33,7 +32,6 @@ const filtered = computed(() =>
 )
 
 const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / perPage)))
-
 const paginated = computed(() => {
   const start = (page.value - 1) * perPage
   return filtered.value.slice(start, start + perPage)
@@ -46,6 +44,10 @@ const initials = (e: { nombre: string; apellido: string }) =>
 
 const openDelete = (e: { id: number; nombre: string }, event: Event) => {
   event.stopPropagation()
+  if (!authStore.isAuthenticated) {
+    authModal.openLogin()
+    return
+  }
   deleteTarget.value = e
   deleteOpen.value = true
 }
@@ -143,14 +145,14 @@ const confirmDelete = async () => {
                 {{ e.activo ? 'Activo' : 'Inactivo' }}
               </span>
             </td>
-            <td @click.stop>
+            <td>
               <div class="flex items-center gap-2 justify-end">
                 <button
                   class="p-1.5 rounded-lg text-gray hover:text-error hover:bg-error/10 transition-colors"
-                  title="Eliminar"
-                  @click="openDelete({ id: e.id, nombre: fullName(e) }, $event)"
+                  :title="authStore.isAuthenticated ? 'Eliminar' : 'Inicia sesión para eliminar'"
+                  @click.stop="openDelete({ id: e.id, nombre: fullName(e) }, $event)"
                 >
-                  <Icon name="ph:trash-bold" class="w-4 h-4" />
+                  <Icon :name="authStore.isAuthenticated ? 'ph:trash-bold' : 'ph:lock-key-bold'" class="w-4 h-4" />
                 </button>
                 <Icon name="ph:caret-right-bold" class="w-4 h-4 text-gray" />
               </div>

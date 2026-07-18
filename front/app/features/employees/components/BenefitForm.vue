@@ -1,11 +1,21 @@
 <script setup lang="ts">
 const props = defineProps<{ employeeId: number }>()
 const store = useEmployeesStore()
+const authStore = useAuthStore()
+const authModal = useAuthModalStore()
 
 const nombre = ref('')
 const monto = ref<number | null>(null)
 const open = ref(false)
 const submitting = ref(false)
+
+const openForm = () => {
+  if (!authStore.isAuthenticated) {
+    authModal.openLogin()
+    return
+  }
+  open.value = true
+}
 
 const submit = async () => {
   if (!nombre.value || !monto.value) return
@@ -25,9 +35,10 @@ const submit = async () => {
     <button
       v-if="!open"
       class="btn-secondary text-xs font-medium px-3.5 py-2 rounded-lg inline-flex items-center gap-1.5"
-      @click="open = true"
+      :title="authStore.isAuthenticated ? 'Añadir beneficio' : 'Inicia sesión para añadir beneficio'"
+      @click="openForm"
     >
-      <Icon name="ph:plus-bold" class="w-3.5 h-3.5" />
+      <Icon :name="authStore.isAuthenticated ? 'ph:plus-bold' : 'ph:lock-key-bold'" class="w-3.5 h-3.5" />
       Añadir beneficio
     </button>
 
