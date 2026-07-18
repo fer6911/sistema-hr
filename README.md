@@ -69,17 +69,21 @@ atlashr/
 │       ├── main/java/com/atlashr/atlas_hr/
 │       │   ├── AtlasHrApplication.java
 │       │   ├── domain/
-│       │   │   ├── model/         # Entidades de dominio
+│       │   │   ├── model/         # Entidades de dominio (Empleado, Beneficio, Ubicacion, Usuario)
 │       │   │   └── exception/     # Excepciones de dominio
 │       │   ├── application/
 │       │   │   ├── dto/           # Data Transfer Objects
+│       │   │   ├── mapper/        # Mappers MapStruct (DTO ↔ Domain)
 │       │   │   ├── ports/in/      # Puertos de entrada (use cases)
-│       │   │   ├── ports/out/     # Puertos de salida (persistencia, JWT, etc.)
+│       │   │   ├── ports/out/     # Puertos de salida (persistencia, Nominatim, JWT)
 │       │   │   └── service/       # Casos de uso
 │       │   └── infrastructure/
-│       │       ├── config/        # ApiResponse, GlobalResponseWrapper, etc.
+│       │       ├── config/        # ApiResponse, RestTemplate, GlobalResponseWrapper, etc.
 │       │       ├── input/rest/    # Controllers REST
-│       │       ├── output/        # Adapters (persistencia, API externa)
+│       │       ├── mapper/        # Mappers MapStruct (Domain ↔ Entity)
+│       │       ├── output/
+│       │       │   ├── persistence/  # Adapters de persistencia + JPA repositories
+│       │       │   └── nominatim/    # Adapter de Nominatim (XML + cache)
 │       │       └── security/      # JWT, Security, Filtros
 │       ├── main/resources/
 │       │   └── application.properties
@@ -201,20 +205,47 @@ El backend expone los siguientes endpoints REST:
 | Método   | Endpoint                      | Descripción                          |
 | -------- | ----------------------------- | ------------------------------------ |
 | `GET`    | `/api/empleados`              | Listar todos los empleados           |
-| `POST`   | `/api/empleados`              | Crear un nuevo empleado              |
-| `GET`    | `/api/empleados/{id}`         | Obtener detalle de un empleado       |
+| `POST`   | `/api/empleados`              | Crear un nuevo empleado (requiere `ciudad`) |
 
 ### Beneficios (requieren JWT)
 
-| Método   | Endpoint                       | Descripción                          |
-| -------- | ------------------------------ | ------------------------------------ |
-| `GET`    | `/api/beneficios/{empleadoId}` | Listar beneficios de un empleado     |
-| `POST`   | `/api/beneficios`              | Asociar un beneficio a un empleado   |
-| `DELETE` | `/api/beneficios/{id}`         | Eliminar un beneficio                |
+| Método   | Endpoint                                | Descripción                                    |
+| -------- | --------------------------------------- | ---------------------------------------------- |
+| `GET`    | `/api/beneficios/empleado/{empleadoId}` | Listar beneficios de un empleado + ubicación   |
+| `POST`   | `/api/beneficios`                       | Asociar un beneficio a un empleado             |
+| `PUT`    | `/api/beneficios/{id}`                  | Editar un beneficio existente                  |
+| `DELETE` | `/api/beneficios/{id}`                  | Eliminar un beneficio                          |
 
 ### Integración con Nominatim
 
 El backend consulta la API de **Nominatim (OpenStreetMap)** en formato XML utilizando la ciudad del empleado como parámetro de búsqueda. La respuesta se parsea para extraer las coordenadas geográficas (latitud/longitud) y el nombre completo del lugar, las cuales se incluyen en la respuesta de beneficios al frontend.
+
+**Ejemplo de respuesta enriquecida (`GET /api/beneficios/empleado/1`):**
+
+```json
+{
+    "error": false,
+    "message": "Beneficios listados exitosamente",
+    "data": {
+        "beneficios": [
+            {
+                "id": 1,
+                "empleadoId": 1,
+                "nombreBeneficio": "Seguro Médico",
+                "monto": 500.00
+            }
+        ],
+        "ubicacion": {
+            "latitud": "4.7110",
+            "longitud": "-74.0721",
+            "displayName": "Bogotá, Bogota, Colombia"
+        }
+    },
+    "errors": []
+}
+```
+
+> **Fallback:** Si Nominatim no responde (por rate-limit u otro fallo transitorio), el endpoint devuelve los beneficios igual, con `"ubicacion": null`, en vez de fallar por completo.
 
 ---
 
