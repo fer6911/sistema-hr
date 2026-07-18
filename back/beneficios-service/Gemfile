@@ -1,0 +1,19 @@
+source "https://rubygems.org"
+
+gem "rails", "~> 8.1"
+gem "pg", "~> 1.5"
+gem "puma", ">= 5.0"
+gem "rack-cors"
+gem "nokogiri", "~> 1.15"
+gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw]
+
+group :development, :test do
+  gem "rspec-rails", "~> 6.0"
+  gem "factory_bot_rails"
+  gem "faker"
+end
+
+group :test do
+  gem "webmock", "~> 3.18"
+  gem "shoulda-matchers"
+end

@@ -1,0 +1,21 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: localhost
+  username: postgres
+  password: admin
+
+development:
+  <<: *default
+  database: beneficios_service_development
+
+test:
+  <<: *default
+  database: beneficios_service_test
+
+production:
+  <<: *default
+  database: beneficios_service_production
+  username: beneficios_service
+  password: <%= ENV["BENEFICIOS_SERVICE_DATABASE_PASSWORD"] %>
