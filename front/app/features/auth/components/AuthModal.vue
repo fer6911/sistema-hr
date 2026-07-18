@@ -11,7 +11,7 @@
       <div
         v-if="visible"
         class="fixed inset-0 z-[100] flex items-center justify-center p-4"
-        @click.self="$emit('close')"
+        @click.self="handleClose"
       >
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
@@ -29,20 +29,20 @@
           >
             <button
               class="absolute top-4 right-4 p-1.5 rounded-lg text-gray hover:text-white hover:bg-white/5 transition-colors z-10"
-              @click="$emit('close')"
+              @click="handleClose"
             >
               <Icon name="ph:x-bold" class="w-5 h-5" />
             </button>
 
             <ModalLogin
               v-if="view === 'login'"
-              @switch-view="view = $event"
-              @success="$emit('close')"
+              @switch-view="switchView"
+              @success="handleClose"
             />
             <ModalRegister
               v-else
-              @switch-view="view = $event"
-              @success="$emit('close')"
+              @switch-view="switchView"
+              @success="handleClose"
             />
           </div>
         </Transition>
@@ -53,7 +53,22 @@
 
 <script setup lang="ts">
 defineProps<{ visible: boolean }>()
-defineEmits<{ close: [] }>()
+
+const authModal = useAuthModalStore()
 
 const view = ref<'login' | 'register'>('login')
+
+const switchView = (newView: 'login' | 'register') => {
+  view.value = newView
+  if (newView === 'login') {
+    authModal.openLogin()
+  } else {
+    authModal.openRegister()
+  }
+}
+
+const handleClose = () => {
+  view.value = 'login'
+  authModal.closeAll()
+}
 </script>

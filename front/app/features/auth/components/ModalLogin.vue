@@ -12,13 +12,13 @@
     <!-- Form -->
     <form @submit.prevent="handleSubmit" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-silver mb-1.5">Correo electrónico</label>
+        <label class="block text-sm font-medium text-silver mb-1.5">Nombre de usuario</label>
         <div class="relative">
-          <Icon name="ph:envelope-simple" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray" />
+          <Icon name="ph:user" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray" />
           <input
-            v-model="form.email"
-            type="email"
-            placeholder="admin@atlashr.co"
+            v-model="form.username"
+            type="text"
+            placeholder="admin"
             required
             class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-white/5 bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all"
           />
@@ -71,13 +71,6 @@
         Regístrate
       </button>
     </p>
-
-    <!-- Demo hint -->
-    <div class="mt-4 text-center">
-      <p class="text-xs text-gray/60">
-        Demo: admin@atlashr.co / admin123
-      </p>
-    </div>
   </div>
 </template>
 
@@ -89,7 +82,7 @@ const emit = defineEmits<{
 
 const auth = useAuthStore()
 
-const form = ref({ email: '', password: '' })
+const form = ref({ username: '', password: '' })
 const showPassword = ref(false)
 const loading = ref(false)
 const error = ref('')
@@ -98,14 +91,12 @@ const handleSubmit = async () => {
   loading.value = true
   error.value = ''
 
-  await new Promise((r) => setTimeout(r, 600))
+  const success = await auth.login(form.value.username, form.value.password)
 
-  const resultado = auth.login(form.value.email, form.value.password)
-
-  if (resultado.exito) {
+  if (success) {
     emit('success')
   } else {
-    error.value = resultado.mensaje
+    error.value = 'Usuario o contraseña incorrectos'
   }
 
   loading.value = false

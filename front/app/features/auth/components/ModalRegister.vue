@@ -12,14 +12,15 @@
     <!-- Form -->
     <form @submit.prevent="handleSubmit" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-silver mb-1.5">Nombre completo</label>
+        <label class="block text-sm font-medium text-silver mb-1.5">Nombre de usuario</label>
         <div class="relative">
           <Icon name="ph:user" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray" />
           <input
-            v-model="form.nombre"
+            v-model="form.username"
             type="text"
-            placeholder="Juan Pérez"
+            placeholder="juanperez"
             required
+            maxlength="30"
             class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-white/5 bg-surface-light text-white placeholder:text-gray/60 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all"
           />
         </div>
@@ -111,7 +112,7 @@ const emit = defineEmits<{
 
 const auth = useAuthStore()
 
-const form = ref({ nombre: '', email: '', password: '', confirmPassword: '' })
+const form = ref({ username: '', email: '', password: '', confirmPassword: '' })
 const showPassword = ref(false)
 const loading = ref(false)
 const error = ref('')
@@ -126,14 +127,12 @@ const handleSubmit = async () => {
     return
   }
 
-  await new Promise((r) => setTimeout(r, 600))
+  const success = await auth.register(form.value.username, form.value.email, form.value.password)
 
-  const resultado = auth.register(form.value.nombre, form.value.email, form.value.password)
-
-  if (resultado.exito) {
+  if (success) {
     emit('success')
   } else {
-    error.value = resultado.mensaje
+    error.value = 'No se pudo crear la cuenta'
   }
 
   loading.value = false
