@@ -8,6 +8,7 @@ import com.atlashr.atlas_hr.infrastructure.output.persistence.repository.Emplead
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class EmpleadoPersistenceAdapter implements EmpleadoRepositoryPort {
@@ -28,6 +29,11 @@ public class EmpleadoPersistenceAdapter implements EmpleadoRepositoryPort {
     @Override
     public boolean existsById(Long id) {
         return repository.existsById(id);
+    }
+
+    @Override
+    public Optional<Empleado> findById(Long id) {
+        return repository.findById(id).map(mapper::toDomain);
     }
 
     @Override

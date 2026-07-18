@@ -31,19 +31,23 @@ public class EmpleadoEntity {
     @Column(nullable = false)
     private LocalDate fechaIngreso;
 
+    @Column(nullable = true)
+    private String ciudad;
+
     @Column(nullable = false)
     private boolean activo;
 
     protected EmpleadoEntity() {}
 
     public EmpleadoEntity(String nombre, String apellido, String email, String cargo,
-                          BigDecimal salario, LocalDate fechaIngreso, boolean activo) {
+                          BigDecimal salario, LocalDate fechaIngreso, String ciudad, boolean activo) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.cargo = cargo;
         this.salario = salario;
         this.fechaIngreso = fechaIngreso;
+        this.ciudad = ciudad;
         this.activo = activo;
     }
 
@@ -54,5 +58,6 @@ public class EmpleadoEntity {
     public String getCargo() { return cargo; }
     public BigDecimal getSalario() { return salario; }
     public LocalDate getFechaIngreso() { return fechaIngreso; }
+    public String getCiudad() { return ciudad; }
     public boolean isActivo() { return activo; }
 }
