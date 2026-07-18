@@ -16,6 +16,7 @@ class EmpleadoTest {
     private static final String VALID_CARGO = "Desarrollador";
     private static final BigDecimal VALID_SALARIO = new BigDecimal("50000.00");
     private static final LocalDate VALID_FECHA = LocalDate.of(2026, 1, 15);
+    private static final String VALID_CIUDAD = "Bogotá";
 
     @Test
     void creacionExitosaConDatosValidos() {
@@ -26,6 +27,7 @@ class EmpleadoTest {
                 .cargo(VALID_CARGO)
                 .salario(VALID_SALARIO)
                 .fechaIngreso(VALID_FECHA)
+                .ciudad(VALID_CIUDAD)
                 .build();
 
         assertEquals(VALID_NOMBRE, empleado.getNombre());
@@ -34,6 +36,7 @@ class EmpleadoTest {
         assertEquals(VALID_CARGO, empleado.getCargo());
         assertEquals(VALID_SALARIO, empleado.getSalario());
         assertEquals(VALID_FECHA, empleado.getFechaIngreso());
+        assertEquals(VALID_CIUDAD, empleado.getCiudad());
         assertTrue(empleado.isActivo());
     }
 
@@ -47,6 +50,7 @@ class EmpleadoTest {
                         .cargo(VALID_CARGO)
                         .salario(VALID_SALARIO)
                         .fechaIngreso(VALID_FECHA)
+                        .ciudad(VALID_CIUDAD)
                         .build()
         );
         assertTrue(ex.getErrors().contains("El nombre no puede estar vacío"));
@@ -62,6 +66,7 @@ class EmpleadoTest {
                         .cargo(VALID_CARGO)
                         .salario(VALID_SALARIO)
                         .fechaIngreso(VALID_FECHA)
+                        .ciudad(VALID_CIUDAD)
                         .build()
         );
         assertTrue(ex.getErrors().contains("El nombre no puede estar vacío"));
@@ -79,6 +84,7 @@ class EmpleadoTest {
                         .cargo(VALID_CARGO)
                         .salario(VALID_SALARIO)
                         .fechaIngreso(VALID_FECHA)
+                        .ciudad(VALID_CIUDAD)
                         .build()
         );
         assertTrue(ex.getErrors().contains("El nombre es demasiado largo"));
@@ -94,6 +100,7 @@ class EmpleadoTest {
                         .cargo(VALID_CARGO)
                         .salario(VALID_SALARIO)
                         .fechaIngreso(VALID_FECHA)
+                        .ciudad(VALID_CIUDAD)
                         .build()
         );
         assertTrue(ex.getErrors().contains("El apellido no puede estar vacío"));
@@ -111,6 +118,7 @@ class EmpleadoTest {
                         .cargo(VALID_CARGO)
                         .salario(VALID_SALARIO)
                         .fechaIngreso(VALID_FECHA)
+                        .ciudad(VALID_CIUDAD)
                         .build()
         );
         assertTrue(ex.getErrors().contains("El apellido es demasiado largo"));
@@ -126,6 +134,7 @@ class EmpleadoTest {
                         .cargo(VALID_CARGO)
                         .salario(VALID_SALARIO)
                         .fechaIngreso(VALID_FECHA)
+                        .ciudad(VALID_CIUDAD)
                         .build()
         );
         assertTrue(ex.getErrors().contains("El email no puede estar vacío"));
@@ -141,6 +150,7 @@ class EmpleadoTest {
                         .cargo(VALID_CARGO)
                         .salario(VALID_SALARIO)
                         .fechaIngreso(VALID_FECHA)
+                        .ciudad(VALID_CIUDAD)
                         .build()
         );
         assertTrue(ex.getErrors().contains("El email no tiene un formato válido"));
@@ -156,6 +166,7 @@ class EmpleadoTest {
                         .cargo("")
                         .salario(VALID_SALARIO)
                         .fechaIngreso(VALID_FECHA)
+                        .ciudad(VALID_CIUDAD)
                         .build()
         );
         assertTrue(ex.getErrors().contains("El cargo no puede estar vacío"));
@@ -171,6 +182,7 @@ class EmpleadoTest {
                         .cargo(VALID_CARGO)
                         .salario(null)
                         .fechaIngreso(VALID_FECHA)
+                        .ciudad(VALID_CIUDAD)
                         .build()
         );
         assertTrue(ex.getErrors().contains("El salario no puede estar vacío"));
@@ -186,6 +198,7 @@ class EmpleadoTest {
                         .cargo(VALID_CARGO)
                         .salario(new BigDecimal("-1000"))
                         .fechaIngreso(VALID_FECHA)
+                        .ciudad(VALID_CIUDAD)
                         .build()
         );
         assertTrue(ex.getErrors().contains("El salario no puede ser negativo"));
@@ -201,6 +214,7 @@ class EmpleadoTest {
                         .cargo(VALID_CARGO)
                         .salario(VALID_SALARIO)
                         .fechaIngreso(null)
+                        .ciudad(VALID_CIUDAD)
                         .build()
         );
         assertTrue(ex.getErrors().contains("La fecha de ingreso no puede estar vacía"));
@@ -230,6 +244,7 @@ class EmpleadoTest {
                 .cargo(VALID_CARGO)
                 .salario(VALID_SALARIO)
                 .fechaIngreso(VALID_FECHA)
+                .ciudad(VALID_CIUDAD)
                 .build();
 
         assertTrue(empleado.isActivo());
@@ -244,6 +259,7 @@ class EmpleadoTest {
                 .cargo(VALID_CARGO)
                 .salario(VALID_SALARIO)
                 .fechaIngreso(VALID_FECHA)
+                .ciudad(VALID_CIUDAD)
                 .activo(false)
                 .build();
 
@@ -260,6 +276,7 @@ class EmpleadoTest {
                 .cargo(VALID_CARGO)
                 .salario(VALID_SALARIO)
                 .fechaIngreso(VALID_FECHA)
+                .ciudad(VALID_CIUDAD)
                 .build();
 
         assertEquals(1L, empleado.getId());
