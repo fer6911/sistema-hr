@@ -1,56 +1,60 @@
 package com.atlashr.atlas_hr.infrastructure.input.rest;
 
-import com.atlashr.atlas_hr.application.dto.BeneficioDto;
-import com.atlashr.atlas_hr.application.dto.BeneficiosConUbicacionDto;
-import com.atlashr.atlas_hr.application.dto.CrearBeneficioDto;
-import com.atlashr.atlas_hr.application.dto.EditarBeneficioDto;
-import com.atlashr.atlas_hr.application.ports.in.CrearBeneficioUseCase;
-import com.atlashr.atlas_hr.application.ports.in.EditarBeneficioUseCase;
-import com.atlashr.atlas_hr.application.ports.in.EliminarBeneficioUseCase;
-import com.atlashr.atlas_hr.application.ports.in.ListarBeneficiosConUbicacionUseCase;
+import com.atlashr.atlas_hr.application.ports.out.EmpleadoRepositoryPort;
+import com.atlashr.atlas_hr.domain.model.Empleado;
 import com.atlashr.atlas_hr.infrastructure.config.ApiResponse;
-import jakarta.validation.Valid;
+import com.atlashr.atlas_hr.infrastructure.output.microservicio.BeneficiosMicroservicioClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/beneficios")
 public class BeneficioController {
 
-    private final CrearBeneficioUseCase crearBeneficioUseCase;
-    private final ListarBeneficiosConUbicacionUseCase listarBeneficiosConUbicacionUseCase;
-    private final EditarBeneficioUseCase editarBeneficioUseCase;
-    private final EliminarBeneficioUseCase eliminarBeneficioUseCase;
+    private final BeneficiosMicroservicioClient microservicioClient;
+    private final EmpleadoRepositoryPort empleadoRepositoryPort;
 
-    public BeneficioController(CrearBeneficioUseCase crearBeneficioUseCase, ListarBeneficiosConUbicacionUseCase listarBeneficiosConUbicacionUseCase,
-                               EditarBeneficioUseCase editarBeneficioUseCase, EliminarBeneficioUseCase eliminarBeneficioUseCase) {
-        this.crearBeneficioUseCase = crearBeneficioUseCase;
-        this.listarBeneficiosConUbicacionUseCase = listarBeneficiosConUbicacionUseCase;
-        this.editarBeneficioUseCase = editarBeneficioUseCase;
-        this.eliminarBeneficioUseCase = eliminarBeneficioUseCase;
+    public BeneficioController(BeneficiosMicroservicioClient microservicioClient,
+                               EmpleadoRepositoryPort empleadoRepositoryPort) {
+        this.microservicioClient = microservicioClient;
+        this.empleadoRepositoryPort = empleadoRepositoryPort;
     }
 
     @GetMapping("/empleado/{empleadoId}")
-    public ResponseEntity<ApiResponse<BeneficiosConUbicacionDto>> listarPorEmpleado(@PathVariable Long empleadoId) {
-        BeneficiosConUbicacionDto resultado = listarBeneficiosConUbicacionUseCase.listarConUbicacion(empleadoId);
-        return ResponseEntity.ok(ApiResponse.success("Beneficios listados exitosamente", resultado));
+    public ResponseEntity<ApiResponse<Map<String, Object>>> listarPorEmpleado(@PathVariable Long empleadoId) {
+        String ciudad = empleadoRepositoryPort.findById(empleadoId)
+                .map(Empleado::getCiudad)
+                .orElse(null);
+
+        Map<String, Object> respuesta = microservicioClient.listarPorEmpleado(empleadoId, ciudad);
+        return ResponseEntity.ok(ApiResponse.success(
+                (String) respuesta.get("message"),
+                (Map<String, Object>) respuesta.get("data")));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<BeneficioDto>> crear(@Valid @RequestBody CrearBeneficioDto dto) {
-        BeneficioDto creado = crearBeneficioUseCase.crear(dto);
-        return ResponseEntity.ok(ApiResponse.success("Beneficio registrado exitosamente", creado));
+    public ResponseEntity<ApiResponse<Map<String, Object>>> crear(@RequestBody Map<String, Object> datos) {
+        Map<String, Object> respuesta = microservicioClient.crear(datos);
+        return ResponseEntity.ok(ApiResponse.success(
+                (String) respuesta.get("message"),
+                (Map<String, Object>) respuesta.get("data")));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<BeneficioDto>> editar(@PathVariable Long id, @Valid @RequestBody EditarBeneficioDto dto) {
-        BeneficioDto editado = editarBeneficioUseCase.editar(id, dto);
-        return ResponseEntity.ok(ApiResponse.success("Beneficio actualizado exitosamente", editado));
+    public ResponseEntity<ApiResponse<Map<String, Object>>> editar(@PathVariable Long id,
+                                                                    @RequestBody Map<String, Object> datos) {
+        Map<String, Object> respuesta = microservicioClient.editar(id, datos);
+        return ResponseEntity.ok(ApiResponse.success(
+                (String) respuesta.get("message"),
+                (Map<String, Object>) respuesta.get("data")));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> eliminar(@PathVariable Long id) {
-        eliminarBeneficioUseCase.eliminar(id);
-        return ResponseEntity.ok(ApiResponse.success("Beneficio eliminado exitosamente", null));
+        Map<String, Object> respuesta = microservicioClient.eliminar(id);
+        return ResponseEntity.ok(ApiResponse.success(
+                (String) respuesta.get("message"), null));
     }
 }
