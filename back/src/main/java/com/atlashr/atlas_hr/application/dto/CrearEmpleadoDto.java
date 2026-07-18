@@ -26,5 +26,8 @@ public record CrearEmpleadoDto(
     BigDecimal salario,
 
     @NotNull(message = "La fecha de ingreso no puede estar vacía")
-    LocalDate fechaIngreso
+    LocalDate fechaIngreso,
+
+    @NotBlank(message = "La ciudad no puede estar vacía")
+    String ciudad
 ) {}
