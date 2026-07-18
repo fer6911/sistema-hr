@@ -40,6 +40,7 @@ class EmpleadoPersistenceAdapterTest {
                 .cargo("Desarrollador")
                 .salario(new BigDecimal("50000.00"))
                 .fechaIngreso(LocalDate.of(2026, 1, 15))
+                .ciudad("Bogotá")
                 .build();
     }
 

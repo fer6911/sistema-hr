@@ -37,6 +37,7 @@ class CrearEmpleadoServiceTest {
     private static final String CARGO = "Desarrollador";
     private static final BigDecimal SALARIO = new BigDecimal("50000.00");
     private static final LocalDate FECHA = LocalDate.of(2026, 1, 15);
+    private static final String CIUDAD = "Bogotá";
 
     @BeforeEach
     void setUp() {
@@ -48,19 +49,19 @@ class CrearEmpleadoServiceTest {
         when(empleadoRepositoryPort.existsByEmail(EMAIL)).thenReturn(false);
         when(mapper.toDomain(any(CrearEmpleadoDto.class))).thenReturn(
                 Empleado.builder().nombre(NOMBRE).apellido(APELLIDO).email(EMAIL)
-                        .cargo(CARGO).salario(SALARIO).fechaIngreso(FECHA).build()
+                        .cargo(CARGO).salario(SALARIO).fechaIngreso(FECHA).ciudad(CIUDAD).build()
         );
         when(empleadoRepositoryPort.save(any(Empleado.class))).thenAnswer(inv -> {
             Empleado e = inv.getArgument(0);
             return Empleado.builder().id(1L).nombre(e.getNombre()).apellido(e.getApellido())
                     .email(e.getEmail()).cargo(e.getCargo()).salario(e.getSalario())
-                    .fechaIngreso(e.getFechaIngreso()).build();
+                    .fechaIngreso(e.getFechaIngreso()).ciudad(e.getCiudad()).build();
         });
         when(mapper.toDto(any(Empleado.class))).thenReturn(
-                new EmpleadoDto(1L, NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA, true)
+                new EmpleadoDto(1L, NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA, CIUDAD, true)
         );
 
-        CrearEmpleadoDto dto = new CrearEmpleadoDto(NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA);
+        CrearEmpleadoDto dto = new CrearEmpleadoDto(NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA, CIUDAD);
         EmpleadoDto resultado = crearEmpleadoService.crear(dto);
 
         assertEquals(NOMBRE, resultado.nombre());
@@ -71,7 +72,7 @@ class CrearEmpleadoServiceTest {
     void emailDuplicadoLanzaExcepcion() {
         when(empleadoRepositoryPort.existsByEmail(EMAIL)).thenReturn(true);
 
-        CrearEmpleadoDto dto = new CrearEmpleadoDto(NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA);
+        CrearEmpleadoDto dto = new CrearEmpleadoDto(NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA, CIUDAD);
         EmpleadoNotValidException ex = assertThrows(EmpleadoNotValidException.class, () ->
                 crearEmpleadoService.crear(dto)
         );
@@ -82,7 +83,7 @@ class CrearEmpleadoServiceTest {
     void emailDuplicadoNoLlamaSave() {
         when(empleadoRepositoryPort.existsByEmail(EMAIL)).thenReturn(true);
 
-        CrearEmpleadoDto dto = new CrearEmpleadoDto(NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA);
+        CrearEmpleadoDto dto = new CrearEmpleadoDto(NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA, CIUDAD);
         assertThrows(EmpleadoNotValidException.class, () ->
                 crearEmpleadoService.crear(dto)
         );
@@ -95,14 +96,14 @@ class CrearEmpleadoServiceTest {
         when(empleadoRepositoryPort.existsByEmail(EMAIL)).thenReturn(false);
         when(mapper.toDomain(any(CrearEmpleadoDto.class))).thenReturn(
                 Empleado.builder().nombre(NOMBRE).apellido(APELLIDO).email(EMAIL)
-                        .cargo(CARGO).salario(SALARIO).fechaIngreso(FECHA).build()
+                        .cargo(CARGO).salario(SALARIO).fechaIngreso(FECHA).ciudad(CIUDAD).build()
         );
         when(empleadoRepositoryPort.save(any(Empleado.class))).thenAnswer(inv -> inv.getArgument(0));
         when(mapper.toDto(any(Empleado.class))).thenReturn(
-                new EmpleadoDto(1L, NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA, true)
+                new EmpleadoDto(1L, NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA, CIUDAD, true)
         );
 
-        CrearEmpleadoDto dto = new CrearEmpleadoDto(NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA);
+        CrearEmpleadoDto dto = new CrearEmpleadoDto(NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA, CIUDAD);
         crearEmpleadoService.crear(dto);
 
         verify(empleadoRepositoryPort).save(any(Empleado.class));
@@ -113,14 +114,14 @@ class CrearEmpleadoServiceTest {
         when(empleadoRepositoryPort.existsByEmail(EMAIL)).thenReturn(false);
         when(mapper.toDomain(any(CrearEmpleadoDto.class))).thenReturn(
                 Empleado.builder().nombre(NOMBRE).apellido(APELLIDO).email(EMAIL)
-                        .cargo(CARGO).salario(SALARIO).fechaIngreso(FECHA).build()
+                        .cargo(CARGO).salario(SALARIO).fechaIngreso(FECHA).ciudad(CIUDAD).build()
         );
         when(empleadoRepositoryPort.save(any(Empleado.class))).thenAnswer(inv -> inv.getArgument(0));
         when(mapper.toDto(any(Empleado.class))).thenReturn(
-                new EmpleadoDto(1L, NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA, true)
+                new EmpleadoDto(1L, NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA, CIUDAD, true)
         );
 
-        CrearEmpleadoDto dto = new CrearEmpleadoDto(NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA);
+        CrearEmpleadoDto dto = new CrearEmpleadoDto(NOMBRE, APELLIDO, EMAIL, CARGO, SALARIO, FECHA, CIUDAD);
         crearEmpleadoService.crear(dto);
 
         verify(empleadoRepositoryPort).existsByEmail(EMAIL);

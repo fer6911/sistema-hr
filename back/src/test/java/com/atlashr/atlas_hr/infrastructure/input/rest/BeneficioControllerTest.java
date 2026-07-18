@@ -1,12 +1,13 @@
 package com.atlashr.atlas_hr.infrastructure.input.rest;
 
 import com.atlashr.atlas_hr.application.dto.BeneficioDto;
+import com.atlashr.atlas_hr.application.dto.BeneficiosConUbicacionDto;
 import com.atlashr.atlas_hr.application.dto.CrearBeneficioDto;
 import com.atlashr.atlas_hr.application.dto.EditarBeneficioDto;
 import com.atlashr.atlas_hr.application.ports.in.CrearBeneficioUseCase;
 import com.atlashr.atlas_hr.application.ports.in.EditarBeneficioUseCase;
 import com.atlashr.atlas_hr.application.ports.in.EliminarBeneficioUseCase;
-import com.atlashr.atlas_hr.application.ports.in.ListarBeneficiosUseCase;
+import com.atlashr.atlas_hr.application.ports.in.ListarBeneficiosConUbicacionUseCase;
 import com.atlashr.atlas_hr.domain.exception.BeneficioNotValidException;
 import com.atlashr.atlas_hr.infrastructure.security.JwtUtil;
 import tools.jackson.databind.ObjectMapper;
@@ -38,7 +39,7 @@ class BeneficioControllerTest {
     private CrearBeneficioUseCase crearBeneficioUseCase;
 
     @MockitoBean
-    private ListarBeneficiosUseCase listarBeneficiosUseCase;
+    private ListarBeneficiosConUbicacionUseCase listarBeneficiosConUbicacionUseCase;
 
     @MockitoBean
     private EditarBeneficioUseCase editarBeneficioUseCase;
@@ -137,23 +138,26 @@ class BeneficioControllerTest {
 
     @Test
     void listarBeneficiosPorEmpleado() throws Exception {
-        when(listarBeneficiosUseCase.listarPorEmpleado(1L)).thenReturn(List.of(beneficioResponse()));
+        when(listarBeneficiosConUbicacionUseCase.listarConUbicacion(1L))
+                .thenReturn(new BeneficiosConUbicacionDto(List.of(beneficioResponse()), null));
 
         mockMvc.perform(get("/api/beneficios/empleado/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").value(false))
-                .andExpect(jsonPath("$.data[0].nombreBeneficio").value("Seguro Médico"))
-                .andExpect(jsonPath("$.data[0].monto").value(500.00));
+                .andExpect(jsonPath("$.data.beneficios[0].nombreBeneficio").value("Seguro Médico"))
+                .andExpect(jsonPath("$.data.beneficios[0].monto").value(500.00))
+                .andExpect(jsonPath("$.data.ubicacion").isEmpty());
     }
 
     @Test
     void listarBeneficiosSinRegistros() throws Exception {
-        when(listarBeneficiosUseCase.listarPorEmpleado(1L)).thenReturn(List.of());
+        when(listarBeneficiosConUbicacionUseCase.listarConUbicacion(1L))
+                .thenReturn(new BeneficiosConUbicacionDto(List.of(), null));
 
         mockMvc.perform(get("/api/beneficios/empleado/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").value(false))
-                .andExpect(jsonPath("$.data").isEmpty());
+                .andExpect(jsonPath("$.data.beneficios").isEmpty());
     }
 
     @Test

@@ -46,12 +46,12 @@ class EmpleadoControllerTest {
 
     private CrearEmpleadoDto crearDto() {
         return new CrearEmpleadoDto("Juan", "Pérez", "juan@example.com",
-                "Desarrollador", new BigDecimal("50000.00"), LocalDate.of(2026, 1, 15));
+                "Desarrollador", new BigDecimal("50000.00"), LocalDate.of(2026, 1, 15), "Bogotá");
     }
 
     private EmpleadoDto empleadoResponse() {
         return new EmpleadoDto(1L, "Juan", "Pérez", "juan@example.com",
-                "Desarrollador", new BigDecimal("50000.00"), LocalDate.of(2026, 1, 15), true);
+                "Desarrollador", new BigDecimal("50000.00"), LocalDate.of(2026, 1, 15), "Bogotá", true);
     }
 
     @Test
@@ -73,7 +73,7 @@ class EmpleadoControllerTest {
     @Test
     void crearEmpleadoEmailInvalido() throws Exception {
         CrearEmpleadoDto dto = new CrearEmpleadoDto("Juan", "Pérez", "noemail",
-                "Desarrollador", new BigDecimal("50000.00"), LocalDate.of(2026, 1, 15));
+                "Desarrollador", new BigDecimal("50000.00"), LocalDate.of(2026, 1, 15), "Bogotá");
 
         mockMvc.perform(post("/api/empleados")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -85,7 +85,7 @@ class EmpleadoControllerTest {
     @Test
     void crearEmpleadoNombreVacio() throws Exception {
         CrearEmpleadoDto dto = new CrearEmpleadoDto("", "Pérez", "juan@example.com",
-                "Desarrollador", new BigDecimal("50000.00"), LocalDate.of(2026, 1, 15));
+                "Desarrollador", new BigDecimal("50000.00"), LocalDate.of(2026, 1, 15), "Bogotá");
 
         mockMvc.perform(post("/api/empleados")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -115,6 +115,7 @@ class EmpleadoControllerTest {
                     "apellido": "Pérez",
                     "email": "juan@example.com",
                     "cargo": "Desarrollador",
+                    "ciudad": "Bogotá",
                     "fechaIngreso": "2026-01-15"
                 }
                 """;

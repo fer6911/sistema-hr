@@ -36,13 +36,13 @@ class ListarEmpleadosServiceTest {
     @Test
     void listarTodosRetornaLista() {
         Empleado e1 = Empleado.builder().id(1L).nombre("Juan").apellido("Pérez").email("juan@example.com")
-                .cargo("Dev").salario(new BigDecimal("50000")).fechaIngreso(LocalDate.of(2026, 1, 1)).build();
+                .cargo("Dev").salario(new BigDecimal("50000")).fechaIngreso(LocalDate.of(2026, 1, 1)).ciudad("Bogotá").build();
         Empleado e2 = Empleado.builder().id(2L).nombre("Ana").apellido("García").email("ana@example.com")
-                .cargo("PM").salario(new BigDecimal("60000")).fechaIngreso(LocalDate.of(2026, 2, 1)).build();
+                .cargo("PM").salario(new BigDecimal("60000")).fechaIngreso(LocalDate.of(2026, 2, 1)).ciudad("Medellín").build();
 
         when(empleadoRepositoryPort.findAll()).thenReturn(List.of(e1, e2));
-        when(mapper.toDto(e1)).thenReturn(new EmpleadoDto(1L, "Juan", "Pérez", "juan@example.com", "Dev", new BigDecimal("50000"), LocalDate.of(2026, 1, 1), true));
-        when(mapper.toDto(e2)).thenReturn(new EmpleadoDto(2L, "Ana", "García", "ana@example.com", "PM", new BigDecimal("60000"), LocalDate.of(2026, 2, 1), true));
+        when(mapper.toDto(e1)).thenReturn(new EmpleadoDto(1L, "Juan", "Pérez", "juan@example.com", "Dev", new BigDecimal("50000"), LocalDate.of(2026, 1, 1), "Bogotá", true));
+        when(mapper.toDto(e2)).thenReturn(new EmpleadoDto(2L, "Ana", "García", "ana@example.com", "PM", new BigDecimal("60000"), LocalDate.of(2026, 2, 1), "Medellín", true));
 
         List<EmpleadoDto> resultado = listarEmpleadosService.listarTodos();
 
