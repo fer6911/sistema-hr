@@ -8,9 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface EmpleadoPersistenceMapper {
 
-    @Mapping(target = "id", ignore = true)
     EmpleadoEntity toEntity(Empleado empleado);
 
-    @Mapping(target = "activo", expression = "java(true)")
     Empleado toDomain(EmpleadoEntity entity);
 }

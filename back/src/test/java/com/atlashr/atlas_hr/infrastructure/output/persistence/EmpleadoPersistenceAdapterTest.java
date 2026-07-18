@@ -121,4 +121,28 @@ class EmpleadoPersistenceAdapterTest {
         assertEquals(LocalDate.of(2026, 1, 15), guardado.getFechaIngreso());
         assertTrue(guardado.isActivo());
     }
+
+    @Test
+    void actualizarEmpleadoExistenteNoDuplica() {
+        initAdapter();
+        Empleado creado = adapter.save(crearEmpleado("juan@example.com"));
+
+        Empleado modificado = Empleado.builder()
+                .id(creado.getId())
+                .nombre("Juan Actualizado")
+                .apellido(creado.getApellido())
+                .email(creado.getEmail())
+                .cargo(creado.getCargo())
+                .salario(creado.getSalario())
+                .fechaIngreso(creado.getFechaIngreso())
+                .ciudad(creado.getCiudad())
+                .activo(creado.isActivo())
+                .build();
+
+        Empleado actualizado = adapter.save(modificado);
+
+        assertEquals(creado.getId(), actualizado.getId());
+        assertEquals("Juan Actualizado", actualizado.getNombre());
+        assertEquals(1, adapter.findAll().size()); // confirma que NO se creó un segundo registro
+    }
 }
