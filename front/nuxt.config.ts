@@ -53,6 +53,7 @@ export default defineNuxtConfig({
     { path: '~/shared/components', pathPrefix: false },
     { path: '~/components', pathPrefix: false },
     { path: '~/features/employees/components', pathPrefix: false },
+    { path: '~/features/auth/components', pathPrefix: false },
     { path: '~/shared/icons', pathPrefix: false },
   ],
 
@@ -61,6 +62,8 @@ export default defineNuxtConfig({
       'composables',
       'features/*/composables',
       'features/*/store',
+      'features/*/actions',
+      'features/*/repositories',
       'shared/composables',
       'shared/utils',
     ]
