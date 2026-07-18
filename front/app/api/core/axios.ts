@@ -56,6 +56,7 @@ const setAuthorizationHeader = (
 
 const apiBar = axios.create({
   timeout: REQUEST_TIMEOUT,
+  withCredentials: true,
 })
 
 apiBar.interceptors.request.use((config) => {
