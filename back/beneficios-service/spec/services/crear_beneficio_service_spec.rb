@@ -18,7 +18,7 @@ RSpec.describe CrearBeneficioService do
       resultado = described_class.ejecutar(params)
 
       expect(resultado[:exito]).to be false
-      expect(resultado[:errores]).to include("El ID del empleado no puede estar vacío")
+      expect(resultado[:errores].join).to include("El ID del empleado no puede estar vacío")
     end
 
     it "falla sin nombre_beneficio" do
@@ -26,7 +26,7 @@ RSpec.describe CrearBeneficioService do
       resultado = described_class.ejecutar(params)
 
       expect(resultado[:exito]).to be false
-      expect(resultado[:errores]).to include("El nombre del beneficio no puede estar vacío")
+      expect(resultado[:errores].join).to include("El nombre del beneficio no puede estar vacío")
     end
 
     it "falla con monto inválido" do
@@ -34,7 +34,7 @@ RSpec.describe CrearBeneficioService do
       resultado = described_class.ejecutar(params)
 
       expect(resultado[:exito]).to be false
-      expect(resultado[:errores]).to include("El monto debe ser mayor a 0")
+      expect(resultado[:errores].join).to include("El monto debe ser mayor a 0")
     end
   end
 end
