@@ -15,6 +15,7 @@ public class Empleado {
     private final String cargo;
     private final BigDecimal salario;
     private final LocalDate fechaIngreso;
+    private final String ciudad;
     private final boolean activo;
 
     private Empleado(Builder builder) {
@@ -35,6 +36,7 @@ public class Empleado {
         this.cargo = builder.cargo;
         this.salario = builder.salario;
         this.fechaIngreso = builder.fechaIngreso;
+        this.ciudad = builder.ciudad;
         this.activo = builder.activo == null ? true : builder.activo;
     }
 
@@ -66,6 +68,10 @@ public class Empleado {
         if (fechaIngreso == null) errores.add("La fecha de ingreso no puede estar vacía");
     }
 
+    private void validarCiudad(String ciudad, List<String> errores) {
+        if (ciudad == null || ciudad.isBlank()) errores.add("La ciudad no puede estar vacía");
+    }
+
     public Long getId() { return id; }
     public String getNombre() { return nombre; }
     public String getApellido() { return apellido; }
@@ -73,6 +79,7 @@ public class Empleado {
     public String getCargo() { return cargo; }
     public BigDecimal getSalario() { return salario; }
     public LocalDate getFechaIngreso() { return fechaIngreso; }
+    public String getCiudad() { return ciudad; }
     public boolean isActivo() { return activo; }
 
     public static Builder builder() { return new Builder(); }
@@ -85,6 +92,7 @@ public class Empleado {
         private String cargo;
         private BigDecimal salario;
         private LocalDate fechaIngreso;
+        private String ciudad;
         private Boolean activo;
 
         public Builder id(Long id) { this.id = id; return this; }
@@ -94,6 +102,7 @@ public class Empleado {
         public Builder cargo(String cargo) { this.cargo = cargo; return this; }
         public Builder salario(BigDecimal salario) { this.salario = salario; return this; }
         public Builder fechaIngreso(LocalDate fechaIngreso) { this.fechaIngreso = fechaIngreso; return this; }
+        public Builder ciudad(String ciudad) { this.ciudad = ciudad; return this; }
         public Builder activo(Boolean activo) { this.activo = activo; return this; }
 
         public Empleado build() { return new Empleado(this); }
